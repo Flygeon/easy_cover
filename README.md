@@ -1,5 +1,5 @@
-# EasyCover - AcoFork
-
+# EasyCover - 基于afoim/easy_cover魔改的封面图生成工具
+ 
 <img width="1893" height="1390" alt="a7db63bb841d2b78d604e2662c50365c" src="https://github.com/user-attachments/assets/e8379b3a-2806-4069-ab47-9a7487c1dd82" />
 
 简单、优雅的封面图生成工具。纯客户端运行，保护您的隐私。
@@ -9,6 +9,8 @@
 *   **纯客户端生成**：所有图片处理均在浏览器完成，无需上传服务器。
 *   **多比例支持**：支持 1:1, 16:9, 21:9, 4:3, 2:1 等多种主流封面比例。
 *   **丰富的图标库**：集成 Iconify，支持搜索和使用数万个图标。
+*   **黑暗模式自适应**：根据系统主题自动切换到黑暗模式。
+*   **配置文件导入导出**：支持导入和导出当前配置，方便配置复用。
 *   **高度自定义**：
     *   **图标**：大小、旋转、颜色、阴影、容器形状（圆/方/圆角）、毛玻璃效果（高斯模糊 + 透明度）。
     *   **文字**：自定义内容、大小、颜色、描边。
@@ -30,7 +32,7 @@
 1.  **克隆仓库**
 
 ```bash
-git clone https://github.com/afoim/easy_cover.git
+git clone https://github.com/Flygeon/easy_cover.git
 cd easy_cover
 ```
 
@@ -85,5 +87,8 @@ npm run dev
 本项目采用 [AGPL-3.0](LICENSE) 许可证。
 
 ---
+❤欢迎访问原项目
 
-Made with ❤️ by AcoFork
+[https://github.com/afoim/easy_cover](https://github.com/afoim/easy_cover) 
+
+Made with ❤️ by AcoFork&Flygeon（偷偷挂个自己名应该没人发现吧ovo）
