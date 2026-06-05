@@ -74,19 +74,22 @@ interface BackgroundSettings {
   rotation: number;
 }
 
-interface CoverState {
+export interface CoverConfig {
   selectedRatios: AspectRatio[];
   showRuler: boolean;
   text: TextSettings;
   icon: IconSettings;
   background: BackgroundSettings;
+}
 
+interface CoverState extends CoverConfig {
   // Actions
   toggleRatio: (ratio: AspectRatio) => void;
   setShowRuler: (show: boolean) => void;
   updateText: (settings: Partial<TextSettings>) => void;
   updateIcon: (settings: Partial<IconSettings>) => void;
   updateBackground: (settings: Partial<BackgroundSettings>) => void;
+  importConfig: (config: CoverConfig) => void;
 }
 
 export const useCoverStore = create<CoverState>((set) => ({
@@ -164,4 +167,12 @@ export const useCoverStore = create<CoverState>((set) => ({
     set((state) => ({ icon: { ...state.icon, ...settings } })),
   updateBackground: (settings) =>
     set((state) => ({ background: { ...state.background, ...settings } })),
+  importConfig: (config) =>
+    set(() => ({
+      selectedRatios: config.selectedRatios,
+      showRuler: config.showRuler,
+      text: { ...config.text },
+      icon: { ...config.icon },
+      background: { ...config.background },
+    })),
 }));

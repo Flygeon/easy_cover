@@ -206,7 +206,7 @@ export default function Canvas() {
   );
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 overflow-hidden relative w-full h-[25vh] md:h-full md:flex-1 min-w-0 shrink-0 md:shrink">
+    <div className="bg-muted overflow-hidden relative w-full h-[25vh] md:h-full md:flex-1 min-w-0 shrink-0 md:shrink">
       {/* Container for scaling */}
       <div
         ref={containerRef}

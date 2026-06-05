@@ -14,7 +14,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { IconPicker } from '@/components/cover/IconPicker';
 import { Separator } from '@/components/ui/separator';
-import { Download, RotateCcw, Maximize, Github, ExternalLink, Settings2, Link as LinkIcon, Link2, Upload, HardDrive, Search, AlignLeft, AlignCenter, AlignRight, Lock, Unlock, ArrowLeftRight, MoveRight } from 'lucide-react';
+import { Download, RotateCcw, Maximize, Github, ExternalLink, Settings2, Link as LinkIcon, Link2, Upload, HardDrive, Search, AlignLeft, AlignCenter, AlignRight, Lock, Unlock, ArrowLeftRight, MoveRight, Moon, Sun, Monitor, FileDown, FileUp } from 'lucide-react';
+import { useTheme } from '@/components/theme-provider';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toPng } from 'html-to-image';
 
@@ -37,6 +38,7 @@ const FONTS = [
     { name: 'HarmonyOS Sans', value: '"HarmonyOS Sans", sans-serif', weights: [100, 400, 700] },
     { name: '得意黑 (Smiley Sans)', value: 'SmileySans, sans-serif', weights: [400] },
     { name: 'OPPO Sans', value: 'OPPOSans, sans-serif', weights: [400] },
+    { name: 'Nightgazer', value: 'Nightgazer, sans-serif', weights: [400] },
     { name: 'Geist Sans', value: 'var(--font-geist-sans), sans-serif', weights: [100, 200, 300, 400, 500, 600, 700, 800, 900] },
     { name: 'Geist Mono', value: 'var(--font-geist-mono), monospace', weights: [100, 200, 300, 400, 500, 600, 700, 800, 900] },
     { name: 'Arial', value: 'Arial, sans-serif', weights: [400, 700] },
@@ -89,6 +91,7 @@ const SliderWithInput = ({
 
 export default function Controls() {
   const store = useCoverStore();
+  const { theme, setTheme } = useTheme();
 
   // Pixel-sized sliders should scale with the canvas, not be hard-pinned.
   // Base every "size/distance/blur radius" max on the largest edge of the active canvas.
@@ -106,6 +109,40 @@ export default function Controls() {
       const url = URL.createObjectURL(file);
       store.updateBackground({ type: 'image', imageUrl: url });
     }
+  };
+
+  const handleExportConfig = () => {
+    const config = {
+      selectedRatios: store.selectedRatios,
+      showRuler: store.showRuler,
+      text: store.text,
+      icon: store.icon,
+      background: store.background,
+    };
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `easy-cover-config-${Date.now()}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportConfig = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const config = JSON.parse(ev.target?.result as string);
+        store.importConfig(config);
+      } catch (err) {
+        console.error('Failed to import config', err);
+        alert('配置文件解析失败，请检查文件格式');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   const handleIconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1234,16 +1271,65 @@ export default function Controls() {
       </ScrollArea>
       </div>
 
-      <div className="p-4 border-t bg-gray-50 dark:bg-gray-950 space-y-4">
+      <div className="p-4 border-t bg-muted/30 space-y-4">
+         <div className="flex items-center gap-2">
+            <Button
+               variant={theme === 'light' ? 'default' : 'outline'}
+               size="sm"
+               className="flex-1"
+               onClick={() => setTheme('light')}
+            >
+               <Sun className="w-4 h-4 mr-1.5" />
+               浅色
+            </Button>
+            <Button
+               variant={theme === 'dark' ? 'default' : 'outline'}
+               size="sm"
+               className="flex-1"
+               onClick={() => setTheme('dark')}
+            >
+               <Moon className="w-4 h-4 mr-1.5" />
+               深色
+            </Button>
+            <Button
+               variant={theme === 'system' ? 'default' : 'outline'}
+               size="sm"
+               className="flex-1"
+               onClick={() => setTheme('system')}
+            >
+               <Monitor className="w-4 h-4 mr-1.5" />
+               自动
+            </Button>
+         </div>
+
+         <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="flex-1" onClick={handleExportConfig}>
+               <FileDown className="w-4 h-4 mr-1.5" />
+               保存配置
+            </Button>
+            <div className="relative flex-1">
+               <Input
+                  type="file"
+                  accept=".json"
+                  className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                  onChange={handleImportConfig}
+               />
+               <Button variant="outline" size="sm" className="w-full">
+                  <FileUp className="w-4 h-4 mr-1.5" />
+                  应用配置
+               </Button>
+            </div>
+         </div>
+
          <Button className="w-full" onClick={handleExport}>
             <Download className="w-4 h-4 mr-2" />
             导出封面图
          </Button>
          
          <div className="text-center text-xs text-muted-foreground">
-            <a href="https://github.com/afoim/easy_cover" target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center justify-center gap-1">
+            <a href="https://github.com/Flygeon/easy_cover" target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center justify-center gap-1">
                 <Github className="w-4 h-4" />
-                GitHub 开源仓库
+                此为基于afoim/easy_cover的修改版
             </a>
          </div>
       </div>
