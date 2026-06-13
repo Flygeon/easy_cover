@@ -17,7 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { Download, RotateCcw, Maximize, Github, ExternalLink, Settings2, Link as LinkIcon, Link2, Upload, HardDrive, Search, AlignLeft, AlignCenter, AlignRight, Lock, Unlock, ArrowLeftRight, MoveRight, Moon, Sun, Monitor, FileDown, FileUp } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { toPng } from 'html-to-image';
+import { toPng, toCanvas } from 'html-to-image';
 
 // Helper component for Reset Button
 const ResetButton = ({ onClick, tooltip = "重置" }: { onClick: () => void, tooltip?: string }) => (
@@ -92,6 +92,7 @@ const SliderWithInput = ({
 export default function Controls() {
   const store = useCoverStore();
   const { theme, setTheme } = useTheme();
+  const [exportFormat, setExportFormat] = React.useState<'png' | 'webp'>('png');
 
   // Pixel-sized sliders should scale with the canvas, not be hard-pinned.
   // Base every "size/distance/blur radius" max on the largest edge of the active canvas.
@@ -245,10 +246,21 @@ export default function Controls() {
       // Warm-up: html-to-image's first call often misses lazily-loaded resources
       // (Iconify SVGs, custom fonts, drop-shadow filter targets). Discard it.
       await toPng(node as HTMLElement, options);
-      const dataUrl = await toPng(node as HTMLElement, options);
+
+      let dataUrl: string;
+      let filename: string;
+
+      if (exportFormat === 'webp') {
+        const canvas = await toCanvas(node as HTMLElement, options);
+        dataUrl = canvas.toDataURL('image/webp', 0.95);
+        filename = 'easy-cover.webp';
+      } else {
+        dataUrl = await toPng(node as HTMLElement, options);
+        filename = 'easy-cover.png';
+      }
 
       const link = document.createElement('a');
-      link.download = 'easy-cover.png';
+      link.download = filename;
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -1321,10 +1333,21 @@ export default function Controls() {
             </div>
          </div>
 
-         <Button className="w-full" onClick={handleExport}>
-            <Download className="w-4 h-4 mr-2" />
-            导出封面图
-         </Button>
+         <div className="flex items-center gap-2">
+            <Select value={exportFormat} onValueChange={(v) => setExportFormat(v as 'png' | 'webp')}>
+               <SelectTrigger className="flex-1">
+                  <SelectValue />
+               </SelectTrigger>
+               <SelectContent>
+                  <SelectItem value="png">PNG</SelectItem>
+                  <SelectItem value="webp">WebP</SelectItem>
+               </SelectContent>
+            </Select>
+            <Button className="flex-1" onClick={handleExport}>
+               <Download className="w-4 h-4 mr-2" />
+               导出封面图
+            </Button>
+         </div>
          
          <div className="text-center text-xs text-muted-foreground">
             <a href="https://github.com/Flygeon/easy_cover" target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center justify-center gap-1">
